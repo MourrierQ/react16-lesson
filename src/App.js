@@ -3,13 +3,85 @@ import "./App.css";
 import Person from "./Person/Person";
 
 class App extends Component {
+  state = {
+    persons: [
+      { id: "asf1", name: "Max", age: 28 },
+      { id: "asf2", name: "Manu", age: 29 },
+      { id: "asf3", name: "Stephanie", age: 26 }
+    ],
+    otherstate: "someOtherValue",
+    showPersons: false
+  };
+
+  deletePersonHandler = personIndex => {
+    const persons = [...this.state.persons]; //Copy the array's content. State stays immutable that way
+    persons.splice(personIndex, 1);
+    this.setState({ persons });
+  };
+
+  nameChangeHandler = (event, id) => {
+    const personIndex = this.state.persons.findIndex(p => id === p.id);
+    const person = { ...this.state.persons[personIndex] }; //IMMUTABLE !!!!
+
+    person.name = event.target.value;
+
+    const persons = [...this.state.persons];
+    persons[personIndex] = person;
+
+    this.setState({ persons });
+  };
+
+  togglePersonsHandler = () => {
+    this.setState({ showPersons: !this.state.showPersons });
+  };
+
   render() {
+    const style = {
+      backgroundColor: "green",
+      font: "inherit",
+      border: "1px solid blue",
+      padding: "8px",
+      cursor: "pointer",
+      fontSize: "1.6rem",
+      color: "white"
+    };
+
+    const classes = [];
+    if (this.state.persons.length <= 2) {
+      classes.push("red");
+    }
+    if (this.state.persons.length <= 1) {
+      classes.push("bold");
+    }
+
+    let persons = null;
+    if (this.state.showPersons) {
+      style.backgroundColor = "red";
+
+      persons = (
+        <div>
+          {this.state.persons.map((person, index) => {
+            return (
+              <Person
+                key={person.id}
+                name={person.name}
+                age={person.age}
+                click={() => this.deletePersonHandler(index)}
+                change={event => this.nameChangeHandler(event, person.id)}
+              />
+            );
+          })}
+        </div>
+      );
+    }
     return (
       <div className="App">
         <h1>Hi i'm a react app</h1>
-        <Person name="tom" />
-        <Person name="john">test !!!!!</Person>
-        <Person name="JC" age={18} />
+        <p className={classes.join(" ")}>It's working</p>
+        <button style={style} onClick={() => this.togglePersonsHandler()}>
+          Switch name
+        </button>
+        {persons}
       </div>
     );
   }
